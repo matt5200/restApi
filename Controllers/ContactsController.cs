@@ -23,10 +23,15 @@ namespace HelloWorldService.Controllers
         }
 
         // GET: api/Contacts/5
-        [HttpGet("{id}", Name = "Get")]
-        public Contact Get(int id)
+        [HttpGet("{id}")]
+        public IActionResult Get(int id)
         {
-            return contacts.FirstOrDefault(t => t.Id == id);
+            var contact = contacts.FirstOrDefault(t => t.Id == id);
+            if (contact == null)
+            {
+                return NotFound();
+            }
+            return new OkObjectResult(contact);
         }
 
         private static int nextId = 1;
@@ -44,20 +49,24 @@ namespace HelloWorldService.Controllers
             value.DateAdded = DateTime.Now;
             contacts.Add(value);
 
-            var result = new { Id = value.Id, Candy = true };
-
             // Look at the Headers in the response output in Postman
-            return CreatedAtAction(nameof(Post), new { id = value.Id }, value);
+            return CreatedAtAction(nameof(Get), new { id = value.Id }, value);
         }
 
         // PUT: api/Contacts/5
         [HttpPut("{id}")]
-        public void Put(int id, [FromBody] Contact value)
+        public IActionResult Put(int id, [FromBody] Contact value)
         {
             var contact = contacts.FirstOrDefault( t => t.Id == id);
+            if (contact == null)
+            {
+                return NotFound();
+            }
             contact.Id = id;
             contact.Email = value.Email;
             contact.Password = value.Password;
+
+            return Ok(contact);
         }
 
         // DELETE: api/ApiWithActions/5
